@@ -1,24 +1,29 @@
-// src/pages/Login.jsx
-import * as React from 'react';
 import {
   Card, CardContent, Typography, Stack, TextField, Button, Box
 } from '@mui/material';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../Services/UserService';
+import { useAuth } from '../Context/AuthContext';
 
-export default function Login() {
+export default function LoginPage() {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    // aquí va tu lógica real de login…
-    navigate('/dashboard');
+
+    try {
+      const result = await loginUser({ username: e.target[0].value, password: e.target[2].value });
+      await signIn(result);
+    } catch (err) {
+      console.error("Login error", err);
+    }
   };
 
   return (
     <Box
       sx={{
-        minHeight: 'calc(100vh - 64px)', // compensa la AppBar
+        minHeight: 'calc(100vh - 64px)', 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -27,7 +32,6 @@ export default function Login() {
       <Card sx={{ maxWidth: 560, width: '100%' }}>
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           <Stack spacing={3}>
-            {/* Título centrado con icono */}
             <Stack alignItems="center" spacing={1} sx={{ mb: 1 }}>
               <Typography variant="h4" sx={{ color: 'secondary.main' }} align="center">
                 Iniciar Sesión
@@ -36,11 +40,10 @@ export default function Login() {
 
             <form onSubmit={onSubmit}>
               <Stack spacing={2.5}>
-                <TextField label="Correo Electrónico" type="email" fullWidth />
+                <TextField label="Correo Electrónico" fullWidth />
                 <TextField label="Contraseña" type="password" fullWidth />
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 1 }}>
-                  {/* Botón gris -> usa el color neutral definido en el theme */}
                   <Button
                     variant="contained"
                     color="neutral"
@@ -49,7 +52,6 @@ export default function Login() {
                     Olvido Contraseña
                   </Button>
 
-                  {/* Botón azul acción */}
                   <Button type="submit" variant="contained" color="secondary">
                     Iniciar Sesión
                   </Button>

@@ -7,16 +7,14 @@ import SearchNiches from "./pages/SearchNiches";
 import AddNiche from "./pages/AddNiche";
 import AvailableNiches from "./pages/AvailableNiches";
 import NicheDetails from "./pages/NicheDetails";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import LoginPage from "./pages/Login";
 
 export default function App() {
   return (
     <Routes>
       {/* Páginas de autenticación (SIN header) */}
       <Route element={<AuthLayout />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<LoginPage />} />        
       </Route>
 
       {/* App (CON header global) */}

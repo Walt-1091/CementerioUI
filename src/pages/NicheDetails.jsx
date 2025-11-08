@@ -9,7 +9,6 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import NoteIcon from "@mui/icons-material/Note";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import FileDropzone from "../components/FileDropzone.jsx";
@@ -24,7 +23,6 @@ export default function NicheDetails() {
   return (
     <Card sx={{ maxWidth: 900, width: "100%" }}>
       <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-        {/* Encabezado */}
         <Stack spacing={7}>
           <Stack
             direction="row"
