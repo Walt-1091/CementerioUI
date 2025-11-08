@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import type { IToken } from '../Interfaces/IToken';
+import { toast } from 'react-toastify';
 
 interface AuthContextProps {
   autenticado: boolean;
@@ -112,9 +113,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       localStorage.setItem(AUTH_TOKEN_KEY, JSON.stringify(token));
       localStorage.setItem(TOKEN_VALUE_KEY, token.access_token);
+      toast.success("Inicio de sesión exitoso.");
       navigate('/dashboard');
     } catch (error) {
-      console.error('Error al iniciar sesión:', error);
+      toast.error("Credenciales inválidas o error de conexión.");
       logout();
       throw error;
     }

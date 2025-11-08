@@ -16,7 +16,7 @@ export default function LoginPage() {
       const result = await loginUser({ username: e.target[0].value, password: e.target[2].value });
       await signIn(result);
     } catch (err) {
-      console.error("Login error", err);
+      toast.error("Credenciales inválidas o error de conexión.");
     }
   };
 
