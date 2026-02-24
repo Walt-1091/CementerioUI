@@ -47,7 +47,7 @@ export default function LoginPage() {
                   <Button
                     variant="contained"
                     color="neutral"
-                    onClick={() => navigate('/register')}
+                    onClick={() => navigate('/forgot-password')}
                   >
                     Olvido Contraseña
                   </Button>
