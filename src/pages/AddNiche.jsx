@@ -1,47 +1,86 @@
 // src/pages/AddNiche.jsx
 import * as React from 'react';
 import {
-  Box, Card, CardContent, Typography, Stack, TextField, Button, Grid
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+  TextField,
+  Button,
+  Grid,
+  Snackbar,
+  Alert
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
-import FileDropzone from '../components/FileDropzone'; // ⬅️ IMPORTANTE
 
 export default function AddNiche() {
   const navigate = useNavigate();
 
-  // Estado simple para los campos (opcional; puedes cambiarlos por tu form lib)
   const [form, setForm] = React.useState({
-    numero: '', difunto: '', anualidad: '',
-    cedula: '', propietario: '', telefono: '',
-    direccion: '', email: '', descripcion: '',
+    numero: '',
+    anualidad: '',
+    cedula: '',
+    propietario: '',
+    telefono: '',
+    direccion: '',
+    email: '',
+    descripcion: '',
   });
-  const onChange = (k) => (e) => setForm((s) => ({ ...s, [k]: e.target.value }));
 
-  // Archivos con previews: [{file, previewUrl}]
-  const [files, setFiles] = React.useState([]);
+  const [file, setFile] = React.useState(null);
+  const [fileError, setFileError] = React.useState('');
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+
+  const onChange = (k) => (e) =>
+    setForm((s) => ({ ...s, [k]: e.target.value }));
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    if (!selectedFile) return;
+
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+    const maxSize = 5 * 1024 * 1024;
+
+    if (!allowedTypes.includes(selectedFile.type)) {
+      setFileError('Solo se permiten archivos PDF, JPG o PNG');
+      setFile(null);
+      return;
+    }
+
+    if (selectedFile.size > maxSize) {
+      setFileError('El archivo no puede superar los 5MB');
+      setFile(null);
+      return;
+    }
+
+    setFile(selectedFile);
+    setFileError('');
+    setOpenSnackbar(true);
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    // Construye FormData
-    const fd = new FormData();
-    fd.append('numero', form.numero);
-    fd.append('difunto', form.difunto);
-    fd.append('anualidad', form.anualidad);
-    fd.append('cedula', form.cedula);
-    fd.append('propietario', form.propietario);
-    fd.append('telefono', form.telefono);
-    fd.append('direccion', form.direccion);
-    fd.append('email', form.email);
-    fd.append('descripcion', form.descripcion);
-    files.forEach((it) => fd.append('comprobantes', it.file)); // ⬅️ archivos
+    if (!file) {
+      setFileError('Debe cargar la boleta de alquiler antes de guardar');
+      return;
+    }
 
-    // TODO: Llama a tu API real
+    const fd = new FormData();
+    Object.keys(form).forEach((key) => {
+      fd.append(key, form[key]);
+    });
+
+    fd.append('boletaAlquiler', file);
+
+    console.log('Formulario listo para enviar');
+    console.log('Archivo:', file.name);
+
+    // Aquí iría tu llamada real al backend
     // await fetch('/api/nichos', { method: 'POST', body: fd });
 
-    console.log('Subiendo:', files.map((f) => f.file.name));
     navigate('/dashboard');
   };
 
@@ -57,12 +96,16 @@ export default function AddNiche() {
       <Card sx={{ maxWidth: 900, width: '100%' }}>
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           {/* Encabezado */}
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={7}>
-            <Stack direction="row" alignItems="center" spacing={3}>
-              <Typography variant="h4" sx={{ color: 'text.primary' }}>
-                Agregar Nicho
-              </Typography>
-            </Stack>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={7}
+          >
+            <Typography variant="h4">
+              Agregar Nicho
+            </Typography>
+
             <Button
               variant="outlined"
               startIcon={<ArrowBackIcon />}
@@ -72,28 +115,23 @@ export default function AddNiche() {
             </Button>
           </Stack>
 
-          <Box mt={8}>
-
-          {/* Formulario */}
           <form onSubmit={onSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
                 <TextField label="Número de Nicho" value={form.numero} onChange={onChange('numero')} fullWidth />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField label="Nombre del Difunto" value={form.difunto} onChange={onChange('difunto')} fullWidth />
-              </Grid>
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Última Anualidad Pagada"
-                  type="date"
-                  InputLabelProps={{ shrink: true }}
+                  label="Año de Última Anualidad Pagada"
+                  type="number"
+                  inputProps={{ min: 1900, max: new Date().getFullYear() }}
                   value={form.anualidad}
                   onChange={onChange('anualidad')}
                   fullWidth
                 />
               </Grid>
+
               <Grid item xs={12} sm={6}>
                 <TextField label="Cédula del Propietario" value={form.cedula} onChange={onChange('cedula')} fullWidth />
               </Grid>
@@ -101,6 +139,7 @@ export default function AddNiche() {
               <Grid item xs={12} sm={6}>
                 <TextField label="Nombre del Propietario" value={form.propietario} onChange={onChange('propietario')} fullWidth />
               </Grid>
+
               <Grid item xs={12} sm={6}>
                 <TextField label="Teléfono" value={form.telefono} onChange={onChange('telefono')} fullWidth />
               </Grid>
@@ -108,6 +147,7 @@ export default function AddNiche() {
               <Grid item xs={12} sm={6}>
                 <TextField label="Dirección" value={form.direccion} onChange={onChange('direccion')} fullWidth />
               </Grid>
+
               <Grid item xs={12} sm={6}>
                 <TextField label="Correo Electrónico" type="email" value={form.email} onChange={onChange('email')} fullWidth />
               </Grid>
@@ -116,36 +156,66 @@ export default function AddNiche() {
                 <TextField label="Descripción" multiline rows={3} value={form.descripcion} onChange={onChange('descripcion')} fullWidth />
               </Grid>
 
-              {/* Dropzone funcional con previews (hasta 3 archivos) */}
+              {/* BOLETA */}
               <Grid item xs={12}>
                 <Typography variant="body1" sx={{ mb: 1 }}>
-                  Comprobante de Pago
+                  Boleta de Alquiler *
                 </Typography>
-                <FileDropzone
-                  value={files}
-                  onChange={setFiles}
-                  maxFiles={3}
-                  maxSizeMB={5}
-                  accept={{
-                    'application/pdf': ['.pdf'],
-                    'image/*': ['.png', '.jpg', '.jpeg']
-                  }}
-                  helperText="Arrastra aquí el comprobante de pago o haz clic para seleccionar"
-                />
+
+                <Button variant="contained" component="label">
+                  {file ? 'Reemplazar Boleta' : 'Cargar Boleta'}
+                  <input
+                    type="file"
+                    hidden
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    onChange={handleFileChange}
+                  />
+                </Button>
+
+                {file && (
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Archivo cargado: {file.name}
+                  </Typography>
+                )}
+
+                {fileError && (
+                  <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                    {fileError}
+                  </Typography>
+                )}
               </Grid>
             </Grid>
 
-            {/* Botones */}
-            <Stack direction="row" spacing={2} justifyContent="flex-end" mt={3}>
-              <Button variant="contained" color="neutral" onClick={() => navigate('/dashboard')}>
+            <Stack direction="row" spacing={2} justifyContent="flex-end" mt={4}>
+              <Button
+                variant="contained"
+                color="inherit"
+                onClick={() => navigate('/dashboard')}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" variant="contained" sx={{ bgcolor: '#22C55E' }}>
+
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ bgcolor: '#22C55E' }}
+                disabled={!file}
+              >
                 Guardar
               </Button>
             </Stack>
           </form>
-          </Box>
+
+          {/* Snackbar éxito */}
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={3000}
+            onClose={() => setOpenSnackbar(false)}
+          >
+            <Alert severity="success" onClose={() => setOpenSnackbar(false)}>
+              Boleta cargada satisfactoriamente
+            </Alert>
+          </Snackbar>
         </CardContent>
       </Card>
     </Box>

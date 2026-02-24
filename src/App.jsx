@@ -8,6 +8,7 @@ import AddNiche from "./pages/AddNiche";
 import AvailableNiches from "./pages/AvailableNiches";
 import NicheDetails from "./pages/NicheDetails";
 import LoginPage from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/niches/available" element={<AvailableNiches />} />
         <Route path="/niches/:id" element={<NicheDetails />} />
         <Route path="/Niche/Details" element={<NicheDetails />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Route>
     </Routes>
   );

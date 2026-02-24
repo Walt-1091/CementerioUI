@@ -1,0 +1,93 @@
+import * as React from "react";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+  TextField,
+  Button,
+  Box,
+  Alert,
+} from "@mui/material";
+
+import { useNavigate } from "react-router-dom";
+
+export default function ForgotPassword() {
+  const navigate = useNavigate();
+  const [emailSent, setEmailSent] = React.useState(false);
+  const [error, setError] = React.useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const email = e.target[0].value;
+
+    if (!email || !email.includes("@")) {
+      setError("Ingrese un correo válido");
+      return;
+    }
+
+    setError("");
+
+    // 🔥 Aquí luego llamas tu API
+    // await sendTemporaryPassword(email)
+
+    setEmailSent(true);
+  };
+
+  return (
+    <Box
+      sx={{
+        minHeight: "calc(100vh - 64px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Card sx={{ maxWidth: 500, width: "100%" }}>
+        <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+          <Stack spacing={3}>
+            <Typography
+              variant="h4"
+              align="center"
+              sx={{ color: "secondary.main" }}
+            >
+              Recuperar Contraseña
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" align="center">
+              Ingrese su correo electrónico para enviar una contraseña temporal.
+            </Typography>
+
+            {emailSent && (
+              <Alert severity="success">
+                Se envió una contraseña temporal al correo.
+              </Alert>
+            )}
+
+            {error && <Alert severity="error">{error}</Alert>}
+
+            <form onSubmit={handleSubmit}>
+              <Stack spacing={2}>
+                <TextField label="Correo Electrónico" fullWidth />
+
+                <Stack direction="row" spacing={2} justifyContent="flex-end">
+                  <Button
+                    variant="outlined"
+                    onClick={() => navigate("/login")}
+                  >
+                    Volver
+                  </Button>
+
+                  <Button type="submit" variant="contained" color="secondary">
+                    Enviar
+                  </Button>
+                </Stack>
+              </Stack>
+            </form>
+          </Stack>
+        </CardContent>
+      </Card>
+    </Box>
+  );
+}
