@@ -5,7 +5,7 @@ import Header from "../components/Header";
 
 export default function MainLayout() {
   // aquí podrías leer el usuario de contexto/localStorage
-  const [user] = React.useState("ADILourdes");
+  const [user] = React.useState("ADI Lourdes");
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>

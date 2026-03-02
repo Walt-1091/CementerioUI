@@ -56,12 +56,12 @@ export default function ForgotPassword() {
             </Typography>
 
             <Typography variant="body2" color="text.secondary" align="center">
-              Ingrese su correo electrónico para enviar una contraseña temporal.
+              Ingrese su correo electrónico para enviar una contraseña.
             </Typography>
 
             {emailSent && (
               <Alert severity="success">
-                Se envió una contraseña temporal al correo.
+                Se envió una contraseña al correo.
               </Alert>
             )}
 
