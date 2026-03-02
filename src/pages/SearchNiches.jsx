@@ -37,7 +37,7 @@ export default function SearchNiches(){
     <Stack spacing={3}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="h4">Consultar Nichos</Typography>
-        <Button startIcon={<ArrowBackIcon/>} component={RouterLink} to="/" variant="outlined">
+        <Button startIcon={<ArrowBackIcon/>} component={RouterLink} to="/dashboard" variant="outlined">
           Volver al Inicio
         </Button>
       </Stack>

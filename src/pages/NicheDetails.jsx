@@ -269,11 +269,11 @@ export default function NicheDetails() {
               </Button>
 
               <Stack direction="row" spacing={2}>
-                <Button variant="outlined" onClick={() => navigate("/")}>
+                <Button variant="outlined" onClick={() => navigate("/dashboard")}>
                   Cancelar
                 </Button>
 
-                <Button color="success" variant="contained" onClick={() => navigate("/")}>
+                <Button color="success" variant="contained" onClick={() => navigate("/dashboard")}>
                   Actualizar
                 </Button>
               </Stack>
