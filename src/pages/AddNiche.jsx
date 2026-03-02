@@ -1,5 +1,5 @@
 // src/pages/AddNiche.jsx
-import * as React from 'react';
+import * as React from "react";
 import {
   Box,
   Card,
@@ -10,214 +10,280 @@ import {
   Button,
   Grid,
   Snackbar,
-  Alert
-} from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useNavigate } from 'react-router-dom';
+  Alert,
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
 
 export default function AddNiche() {
   const navigate = useNavigate();
 
   const [form, setForm] = React.useState({
-    numero: '',
-    anualidad: '',
-    cedula: '',
-    propietario: '',
-    telefono: '',
-    direccion: '',
-    email: '',
-    descripcion: '',
+    numero: "",
+    anualidad: "",
+    cedula: "",
+    propietario: "",
+    telefono: "",
+    direccion: "",
+    email: "",
+    descripcion: "",
   });
 
   const [file, setFile] = React.useState(null);
-  const [fileError, setFileError] = React.useState('');
+  const [fileError, setFileError] = React.useState("");
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
 
-  const onChange = (k) => (e) =>
-    setForm((s) => ({ ...s, [k]: e.target.value }));
+  /* ========================= DIFUNTOS ========================= */
+
+  const [openDifunto, setOpenDifunto] = React.useState(false);
+  const [difunto, setDifunto] = React.useState({
+    nombre: "",
+    apellidos: "",
+    fechaNacimiento: "",
+    fechaDefuncion: "",
+  });
+  const [difuntos, setDifuntos] = React.useState([]);
+
+  const handleDifuntoChange = (key) => (e) =>
+    setDifunto((prev) => ({ ...prev, [key]: e.target.value }));
+
+  const guardarDifunto = () => {
+    setDifuntos((prev) => [...prev, difunto]);
+    setOpenDifunto(false);
+    setDifunto({
+      nombre: "",
+      apellidos: "",
+      fechaNacimiento: "",
+      fechaDefuncion: "",
+    });
+  };
+
+  /* ========================= GENERAL ========================= */
+
+  const onChange = (key) => (e) =>
+    setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (!selectedFile) return;
 
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-    const maxSize = 5 * 1024 * 1024;
-
-    if (!allowedTypes.includes(selectedFile.type)) {
-      setFileError('Solo se permiten archivos PDF, JPG o PNG');
-      setFile(null);
-      return;
-    }
-
-    if (selectedFile.size > maxSize) {
-      setFileError('El archivo no puede superar los 5MB');
-      setFile(null);
-      return;
-    }
-
     setFile(selectedFile);
-    setFileError('');
     setOpenSnackbar(true);
   };
 
-  const onSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
 
     if (!file) {
-      setFileError('Debe cargar la boleta de alquiler antes de guardar');
+      setFileError("Debe cargar la boleta");
       return;
     }
 
-    const fd = new FormData();
-    Object.keys(form).forEach((key) => {
-      fd.append(key, form[key]);
-    });
+    console.log("Formulario:", form);
+    console.log("Difuntos:", difuntos);
 
-    fd.append('boletaAlquiler', file);
-
-    console.log('Formulario listo para enviar');
-    console.log('Archivo:', file.name);
-
-    // Aquí iría tu llamada real al backend
-    // await fetch('/api/nichos', { method: 'POST', body: fd });
-
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
   return (
     <Box
       sx={{
-        minHeight: 'calc(100vh - 64px)',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
+        backgroundColor: "#f5f6f8",
+        minHeight: "100vh",
+        p: 4,
+        display: "flex",
+        justifyContent: "center",
       }}
     >
-      <Card sx={{ maxWidth: 900, width: '100%' }}>
-        <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-          {/* Encabezado */}
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={7}
-          >
-            <Typography variant="h4">
+      <Card sx={{ width: "100%", maxWidth: 950, borderRadius: 4 }}>
+        <CardContent sx={{ p: 4 }}>
+
+          {/* HEADER */}
+          <Stack direction="row" justifyContent="space-between" mb={4}>
+            <Typography variant="h4" fontWeight={600}>
               Agregar Nicho
             </Typography>
 
             <Button
               variant="outlined"
               startIcon={<ArrowBackIcon />}
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate("/dashboard")}
             >
-              Volver al Inicio
+              Volver
             </Button>
           </Stack>
 
           <form onSubmit={onSubmit}>
+
+            {/* ================= DATOS DEL NICHO ================= */}
+            <Typography variant="h6" mb={2}>
+              Datos del Nicho
+            </Typography>
+
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField label="Número de Nicho" value={form.numero} onChange={onChange('numero')} fullWidth />
+              <Grid item xs={12} md={6}>
+                <TextField label="Número de Nicho" fullWidth value={form.numero} onChange={onChange("numero")} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   label="Año de Última Anualidad Pagada"
                   type="number"
-                  inputProps={{ min: 1900, max: new Date().getFullYear() }}
-                  value={form.anualidad}
-                  onChange={onChange('anualidad')}
                   fullWidth
+                  value={form.anualidad}
+                  onChange={onChange("anualidad")}
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField label="Cédula del Propietario" value={form.cedula} onChange={onChange('cedula')} fullWidth />
+              <Grid item xs={12} md={6}>
+                <TextField label="Cédula del Propietario" fullWidth value={form.cedula} onChange={onChange("cedula")} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField label="Nombre del Propietario" value={form.propietario} onChange={onChange('propietario')} fullWidth />
+              <Grid item xs={12} md={6}>
+                <TextField label="Nombre del Propietario" fullWidth value={form.propietario} onChange={onChange("propietario")} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField label="Teléfono" value={form.telefono} onChange={onChange('telefono')} fullWidth />
+              <Grid item xs={12} md={6}>
+                <TextField label="Teléfono" fullWidth value={form.telefono} onChange={onChange("telefono")} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField label="Dirección" value={form.direccion} onChange={onChange('direccion')} fullWidth />
+              <Grid item xs={12} md={6}>
+                <TextField label="Dirección" fullWidth value={form.direccion} onChange={onChange("direccion")} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField label="Correo Electrónico" type="email" value={form.email} onChange={onChange('email')} fullWidth />
+              <Grid item xs={12} md={6}>
+                <TextField label="Correo Electrónico" type="email" fullWidth value={form.email} onChange={onChange("email")} />
               </Grid>
 
               <Grid item xs={12}>
-                <TextField label="Descripción" multiline rows={3} value={form.descripcion} onChange={onChange('descripcion')} fullWidth />
-              </Grid>
-
-              {/* BOLETA */}
-              <Grid item xs={12}>
-                <Typography variant="body1" sx={{ mb: 1 }}>
-                  Boleta de Alquiler *
-                </Typography>
-
-                <Button variant="contained" component="label">
-                  {file ? 'Reemplazar Boleta' : 'Cargar Boleta'}
-                  <input
-                    type="file"
-                    hidden
-                    accept=".pdf,.png,.jpg,.jpeg"
-                    onChange={handleFileChange}
-                  />
-                </Button>
-
-                {file && (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Archivo cargado: {file.name}
-                  </Typography>
-                )}
-
-                {fileError && (
-                  <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                    {fileError}
-                  </Typography>
-                )}
+                <TextField label="Descripción" multiline rows={3} fullWidth value={form.descripcion} onChange={onChange("descripcion")} />
               </Grid>
             </Grid>
 
-            <Stack direction="row" spacing={2} justifyContent="flex-end" mt={4}>
+            <Divider sx={{ my: 5 }} />
+
+            {/* ================= DIFUNTOS ================= */}
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="h6">Difuntos</Typography>
+
               <Button
-                variant="contained"
-                color="inherit"
-                onClick={() => navigate('/dashboard')}
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={() => setOpenDifunto(true)}
+              >
+                Agregar
+              </Button>
+            </Stack>
+
+            {difuntos.length > 0 && (
+              <Paper sx={{ borderRadius: 3 }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell><b>Nombre</b></TableCell>
+                      <TableCell><b>Apellidos</b></TableCell>
+                      <TableCell><b>Fecha Nacimiento</b></TableCell>
+                      <TableCell><b>Fecha Defunción</b></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {difuntos.map((d, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{d.nombre}</TableCell>
+                        <TableCell>{d.apellidos}</TableCell>
+                        <TableCell>{d.fechaNacimiento}</TableCell>
+                        <TableCell>{d.fechaDefuncion}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Paper>
+            )}
+
+            <Divider sx={{ my: 5 }} />
+
+            {/* ================= DOCUMENTOS ================= */}
+            <Typography variant="h6" mb={2}>
+              Documentos
+            </Typography>
+
+            <Button variant="contained" component="label">
+              Cargar Boleta
+              <input hidden type="file" onChange={handleFileChange} />
+            </Button>
+
+            {file && (
+              <Alert sx={{ mt: 2 }} severity="info">
+                {file.name}
+              </Alert>
+            )}
+
+            {fileError && (
+              <Typography color="error" mt={1}>
+                {fileError}
+              </Typography>
+            )}
+
+            <Divider sx={{ my: 5 }} />
+
+            {/* ================= ACCIONES ================= */}
+            <Stack direction="row" justifyContent="flex-end" spacing={2}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate("/dashboard")}
               >
                 Cancelar
               </Button>
 
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{ bgcolor: '#22C55E' }}
-                disabled={!file}
-              >
+              <Button type="submit" variant="contained" color="success">
                 Guardar
               </Button>
             </Stack>
-          </form>
 
-          {/* Snackbar éxito */}
-          <Snackbar
-            open={openSnackbar}
-            autoHideDuration={3000}
-            onClose={() => setOpenSnackbar(false)}
-          >
-            <Alert severity="success" onClose={() => setOpenSnackbar(false)}>
-              Boleta cargada satisfactoriamente
-            </Alert>
-          </Snackbar>
+          </form>
         </CardContent>
       </Card>
+
+      {/* ================= DIALOG DIFUNTO ================= */}
+      <Dialog open={openDifunto} onClose={() => setOpenDifunto(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Agregar Difunto</DialogTitle>
+
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField label="Nombre" fullWidth onChange={handleDifuntoChange("nombre")} />
+            <TextField label="Apellidos" fullWidth onChange={handleDifuntoChange("apellidos")} />
+            <TextField type="date" label="Fecha Nacimiento" InputLabelProps={{ shrink: true }} onChange={handleDifuntoChange("fechaNacimiento")} />
+            <TextField type="date" label="Fecha Defunción" InputLabelProps={{ shrink: true }} onChange={handleDifuntoChange("fechaDefuncion")} />
+          </Stack>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setOpenDifunto(false)}>Cancelar</Button>
+          <Button variant="contained" onClick={guardarDifunto}>
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+      >
+        <Alert severity="success">Archivo cargado</Alert>
+      </Snackbar>
     </Box>
   );
 }

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useParams, Link as RouterLink, useNavigate } from "react-router-dom";
 import {
+  Box,
   Card,
   CardContent,
   Typography,
@@ -13,6 +14,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogActions,
   Table,
   TableBody,
   TableCell,
@@ -20,9 +22,11 @@ import {
   TableRow,
   TableContainer,
   Paper,
+  Divider,
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AddIcon from "@mui/icons-material/Add";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import { mockNiches } from "../data.js";
 
@@ -30,6 +34,47 @@ export default function NicheDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const niche = mockNiches.find((n) => n.id === id) || mockNiches[0];
+
+  /* ================= DIFUNTOS ================= */
+
+  const [openDifunto, setOpenDifunto] = React.useState(false);
+
+  const [difunto, setDifunto] = React.useState({
+    nombre: "",
+    apellidos: "",
+    fechaNacimiento: "",
+    fechaDefuncion: "",
+  });
+
+  const [difuntos, setDifuntos] = React.useState(() => {
+    if (Array.isArray(niche.deceased)) {
+      return niche.deceased.map((d) => ({
+        nombre: d,
+        apellidos: "",
+        fechaNacimiento: "",
+        fechaDefuncion: "",
+      }));
+    }
+    return niche.deceased
+      ? [{ nombre: niche.deceased, apellidos: "", fechaNacimiento: "", fechaDefuncion: "" }]
+      : [];
+  });
+
+  const handleDifuntoChange = (key) => (e) =>
+    setDifunto((prev) => ({ ...prev, [key]: e.target.value }));
+
+  const guardarDifunto = () => {
+    setDifuntos((prev) => [...prev, difunto]);
+    setDifunto({
+      nombre: "",
+      apellidos: "",
+      fechaNacimiento: "",
+      fechaDefuncion: "",
+    });
+    setOpenDifunto(false);
+  };
+
+  /* ================= ANUALIDADES ================= */
 
   const [openDelete, setOpenDelete] = React.useState(false);
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -42,92 +87,73 @@ export default function NicheDetails() {
     const file = event.target.files[0];
     if (!file) return;
 
-    const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
-    const maxSize = 5 * 1024 * 1024;
-
-    if (!allowedTypes.includes(file.type)) {
-      setFileError("Solo se permiten archivos PDF, JPG o PNG");
-      return;
-    }
-
-    if (file.size > maxSize) {
-      setFileError("El archivo no puede superar los 5MB");
-      return;
-    }
-
-    const year = new Date().getFullYear();
-
     const newEntry = {
-      year,
+      year: new Date().getFullYear(),
       name: file.name,
       url: URL.createObjectURL(file),
       type: file.type,
       date: new Date().toLocaleDateString(),
     };
 
-    // 🔥 mantener solo últimas 5 anualidades
-    setAnnualidades((prev) =>
-      [newEntry, ...prev].slice(0, 5)
-    );
-
-    setFileError("");
+    setAnnualidades((prev) => [newEntry, ...prev].slice(0, 5));
     setOpenSnackbar(true);
   };
 
   return (
-    <Card sx={{ maxWidth: 900, width: "100%" }}>
-      <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-        <Stack spacing={7}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h4">Detalle del Nicho</Typography>
+    <Box
+      sx={{
+        backgroundColor: "#f5f6f8",
+        minHeight: "100vh",
+        p: 4,
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <Card sx={{ maxWidth: 950, width: "100%", borderRadius: 4 }}>
+        <CardContent sx={{ p: 4 }}>
+          <Stack spacing={5}>
 
-            <Button
-              startIcon={<ArrowBackIcon />}
-              component={RouterLink}
-              to="/"
-              variant="outlined"
-            >
-              Volver al Inicio
-            </Button>
-          </Stack>
+            {/* HEADER */}
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="h4" fontWeight={600}>
+                Detalle del Nicho
+              </Typography>
 
-          <Card>
-            <CardContent>
-              <Grid container spacing={2}>
+              <Button
+                startIcon={<ArrowBackIcon />}
+                component={RouterLink}
+                to="/"
+                variant="outlined"
+              >
+                Volver
+              </Button>
+            </Stack>
 
+            {/* ================= DATOS ================= */}
+            <Box>
+              <Typography variant="h6" mb={2}>
+                Datos del Nicho
+              </Typography>
+
+              <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                   <TextField label="Número de Nicho" defaultValue={niche.number} fullWidth />
                 </Grid>
 
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Nombres de los Difuntos"
-                    defaultValue={
-                      Array.isArray(niche.deceased)
-                        ? niche.deceased.join(", ")
-                        : niche.deceased
-                    }
+                    label="Año Última Anualidad"
+                    defaultValue={niche.lastPaymentYear || new Date(niche.lastPayment).getFullYear()}
                     fullWidth
                   />
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Año de Última Anualidad Pagada"
-                    defaultValue={
-                      niche.lastPaymentYear ||
-                      new Date(niche.lastPayment).getFullYear()
-                    }
-                    fullWidth
-                  />
+                  <TextField label="Cédula Propietario" defaultValue={niche.ownerId} fullWidth />
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                  <TextField label="Cédula del Propietario" defaultValue={niche.ownerId} fullWidth />
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <TextField label="Nombre del Propietario" defaultValue={niche.owner} fullWidth />
+                  <TextField label="Nombre Propietario" defaultValue={niche.owner} fullWidth />
                 </Grid>
 
                 <Grid item xs={12} md={6}>
@@ -139,109 +165,162 @@ export default function NicheDetails() {
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                  <TextField label="Correo Electrónico" defaultValue={niche.email} fullWidth />
+                  <TextField label="Correo" defaultValue={niche.email} fullWidth />
                 </Grid>
 
                 <Grid item xs={12}>
                   <TextField label="Descripción" defaultValue={niche.notes} multiline minRows={3} fullWidth />
                 </Grid>
-
-                {/* 🔥 HISTORIAL ANUALIDADES */}
-                <Grid item xs={12}>
-                  <Button variant="contained" component="label">
-                    Cargar Anualidad
-                    <input
-                      type="file"
-                      hidden
-                      accept=".pdf,.png,.jpg,.jpeg"
-                      onChange={handleFileChange}
-                    />
-                  </Button>
-
-                  <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-                    Historial de Anualidades
-                  </Typography>
-
-                  {fileError && (
-                    <Typography color="error">{fileError}</Typography>
-                  )}
-
-                  {annualidades.length > 0 && (
-                    <TableContainer component={Paper} sx={{ mt: 1 }}>
-                      <Table size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell><b>Año</b></TableCell>
-                            <TableCell><b>Fecha Carga</b></TableCell>
-                          </TableRow>
-                        </TableHead>
-
-                        <TableBody>
-                          {annualidades.map((a, index) => (
-                            <TableRow
-                              key={index}
-                              hover
-                              sx={{ cursor: "pointer" }}
-                              onClick={() => {
-                                setSelectedFile(a);
-                                setOpenViewer(true);
-                              }}
-                            >
-                              <TableCell>{a.year}</TableCell>
-                              <TableCell>{a.date}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  )}
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2}>
-                    <Button variant="contained" color="error" onClick={() => setOpenDelete(true)}>
-                      Eliminar
-                    </Button>
-
-                    <Button variant="contained" color="success" onClick={() => navigate("/")}>
-                      Actualizar
-                    </Button>
-                  </Stack>
-                </Grid>
-
               </Grid>
-            </CardContent>
-          </Card>
+            </Box>
 
-          <ConfirmDialog
-            open={openDelete}
-            title="Eliminar Nicho"
-            message="¿Está seguro de que desea eliminar este nicho?"
-            onCancel={() => setOpenDelete(false)}
-            onConfirm={() => {
-              setOpenDelete(false);
-              navigate("/");
-            }}
-          />
+            <Divider />
 
-          <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(false)}>
-            <Alert severity="success">Anualidad cargada correctamente</Alert>
-          </Snackbar>
+            {/* ================= DIFUNTOS ================= */}
+            <Box>
+              <Stack direction="row" justifyContent="space-between" mb={2}>
+                <Typography variant="h6">Difuntos</Typography>
 
-          {/* VISOR */}
-          <Dialog open={openViewer} onClose={() => setOpenViewer(false)} maxWidth="md" fullWidth>
-            <DialogTitle>Visualizar Anualidad</DialogTitle>
-            <DialogContent>
-              {selectedFile?.type === "application/pdf" ? (
-                <iframe src={selectedFile?.url} width="100%" height="500px" title="PDF Viewer" />
-              ) : (
-                <img src={selectedFile?.url} alt="Anualidad" style={{ width: "100%" }} />
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setOpenDifunto(true)}
+                >
+                  Agregar otros difuntos
+                </Button>
+              </Stack>
+
+              {difuntos.length > 0 && (
+                <TableContainer component={Paper}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell><b>Nombre</b></TableCell>
+                        <TableCell><b>Apellidos</b></TableCell>
+                        <TableCell><b>Fecha Nacimiento</b></TableCell>
+                        <TableCell><b>Fecha Defunción</b></TableCell>
+                      </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                      {difuntos.map((d, i) => (
+                        <TableRow key={i}>
+                          <TableCell>{d.nombre}</TableCell>
+                          <TableCell>{d.apellidos}</TableCell>
+                          <TableCell>{d.fechaNacimiento}</TableCell>
+                          <TableCell>{d.fechaDefuncion}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
-            </DialogContent>
-          </Dialog>
+            </Box>
 
-        </Stack>
-      </CardContent>
-    </Card>
+            <Divider />
+
+            {/* ================= ANUALIDADES ================= */}
+            <Box>
+              <Typography variant="h6" mb={2}>
+                Anualidades
+              </Typography>
+
+              <Button variant="contained" component="label">
+                Cargar Anualidad
+                <input hidden type="file" onChange={handleFileChange} />
+              </Button>
+
+              {fileError && <Typography color="error">{fileError}</Typography>}
+
+              {annualidades.length > 0 && (
+                <TableContainer component={Paper} sx={{ mt: 2 }}>
+                  <Table size="small">
+                    <TableBody>
+                      {annualidades.map((a, i) => (
+                        <TableRow
+                          key={i}
+                          hover
+                          sx={{ cursor: "pointer" }}
+                          onClick={() => {
+                            setSelectedFile(a);
+                            setOpenViewer(true);
+                          }}
+                        >
+                          <TableCell>{a.year}</TableCell>
+                          <TableCell>{a.date}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </Box>
+
+            <Divider />
+
+            {/* ================= ACCIONES ================= */}
+            <Stack direction="row" justifyContent="space-between">
+              <Button
+                color="error"
+                variant="outlined"
+                onClick={() => setOpenDelete(true)}
+              >
+                Eliminar
+              </Button>
+
+              <Stack direction="row" spacing={2}>
+                <Button variant="outlined" onClick={() => navigate("/")}>
+                  Cancelar
+                </Button>
+
+                <Button color="success" variant="contained" onClick={() => navigate("/")}>
+                  Actualizar
+                </Button>
+              </Stack>
+            </Stack>
+
+          </Stack>
+        </CardContent>
+
+        {/* DIALOG DIFUNTO */}
+        <Dialog open={openDifunto} onClose={() => setOpenDifunto(false)} fullWidth>
+          <DialogTitle>Agregar Difunto</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} sx={{ mt: 1 }}>
+              <TextField label="Nombre" onChange={handleDifuntoChange("nombre")} />
+              <TextField label="Apellidos" onChange={handleDifuntoChange("apellidos")} />
+              <TextField type="date" InputLabelProps={{ shrink: true }} onChange={handleDifuntoChange("fechaNacimiento")} />
+              <TextField type="date" InputLabelProps={{ shrink: true }} onChange={handleDifuntoChange("fechaDefuncion")} />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDifunto(false)}>Cancelar</Button>
+            <Button variant="contained" onClick={guardarDifunto}>Guardar</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* VISOR */}
+        <Dialog open={openViewer} onClose={() => setOpenViewer(false)} maxWidth="md" fullWidth>
+          <DialogTitle>Visualizar Anualidad</DialogTitle>
+          <DialogContent>
+            {selectedFile?.type === "application/pdf"
+              ? <iframe src={selectedFile?.url} width="100%" height="500px" title="PDF" />
+              : <img src={selectedFile?.url} alt="Anualidad" style={{ width: "100%" }} />}
+          </DialogContent>
+        </Dialog>
+
+        <Snackbar open={openSnackbar} autoHideDuration={3000}>
+          <Alert severity="success">Anualidad cargada correctamente</Alert>
+        </Snackbar>
+
+        <ConfirmDialog
+          open={openDelete}
+          title="Eliminar Nicho"
+          message="¿Está seguro de eliminar este nicho?"
+          onCancel={() => setOpenDelete(false)}
+          onConfirm={() => navigate("/")}
+        />
+      </Card>
+    </Box>
   );
 }

@@ -15,7 +15,8 @@ export default function App() {
     <Routes>
       {/* Páginas de autenticación (SIN header) */}
       <Route element={<AuthLayout />}>
-        <Route path="/login" element={<LoginPage />} />        
+        <Route path="/login" element={<LoginPage />} />  
+        <Route path="/forgot-password" element={<ForgotPassword />} />      
       </Route>
 
       {/* App (CON header global) */}
@@ -27,7 +28,6 @@ export default function App() {
         <Route path="/niches/available" element={<AvailableNiches />} />
         <Route path="/niches/:id" element={<NicheDetails />} />
         <Route path="/Niche/Details" element={<NicheDetails />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Route>
     </Routes>
   );
