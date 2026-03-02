@@ -1,10 +1,10 @@
 
 const endpoints = {
   users: {
-    userInfo: '/api/usuario/login'
+    userInfo: '/usuario/login'
   },
   auth: {
-    login: '/api/auth/login'
+    login: '/auth/login'
   },
   niche: {}
 };
