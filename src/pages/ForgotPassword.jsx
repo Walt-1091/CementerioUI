@@ -23,11 +23,9 @@ export default function ForgotPassword() {
     const email = e.target[0].value;
 
     if (!email || !email.includes("@")) {
-      setError("Ingrese un correo válido");
+      toast.error("Ingrese un correo válido");
       return;
     }
-
-    setError("");
 
     // 🔥 Aquí luego llamas tu API
     // await sendTemporaryPassword(email)
@@ -60,12 +58,10 @@ export default function ForgotPassword() {
             </Typography>
 
             {emailSent && (
-              <Alert severity="success">
-                Se envió una contraseña al correo.
-              </Alert>
+              toast.error('Se envió una contraseña al correo.')
             )}
 
-            {error && <Alert severity="error">{error}</Alert>}
+            {error && toast.error('Se envió una contraseña al correo.')}
 
             <form onSubmit={handleSubmit}>
               <Stack spacing={2}>
