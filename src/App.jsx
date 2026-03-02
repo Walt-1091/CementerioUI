@@ -19,7 +19,7 @@ export default function App() {
       </Route>
 
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/niches/search" element={<SearchNiches />} />
         <Route path="/niches/add" element={<AddNiche />} />
